@@ -1,0 +1,42 @@
+{% extends 'main.html' %} {% block content %}
+<div class="card maincard">
+  <div class="card-body">
+    <nav>
+      <ul class="nav nav-tabs">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="#">M dash</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'junkchar' %}">Junk Characters</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'pageno' %}">Page Numbers</a>
+        </li>
+      </ul>
+    </nav>
+
+    <section>
+      <div class="insideCard">
+        <div class="card cardin">
+          <div class="card-body">
+            <div class="row p-1"">
+              <div class=" col-6">
+              <div class="pdfData d" style="height: 22.5em; overflow: auto; padding: 10px;">
+
+                {{pdfData | safe}}
+
+              </div>
+            </div>
+            <div class="col-6 ">
+              <div class="errors " style="height: 22.5em;">
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+  </div>
+  </section>
+</div>
+</div>
+{% endblock %}

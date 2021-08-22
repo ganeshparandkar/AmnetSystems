@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+      integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+      crossorigin="anonymous"
+    />
+    <title>File Display</title>
+    <style>
+      .bg-yellow {
+        background-color: yellow;
+        color: black;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container mt-5">
+      <div class="row">
+        <div class="col-12">
+          <h1>All Files</h1>
+          <div class="jumbotron">
+            <table class="table table-bordered">
+              {% comment %}
+              <thead class="thead-dark">
+                <tr>
+                  <th>Sr. No.</th>
+                  <th>Name</th>
+                  <th>File Name</th>
+                </tr>
+              </thead>
+              {% endcomment %}
+              <tbody>
+                {% comment %} {% for d in data %}
+                <tr>
+                  <td>{{forloop.counter}}</td>
+                  <td>{{d.file_name}}</td>
+                  <td>
+                    <a href="{{d.up_file.url}}" target="_blank"
+                      >{{d.up_file}}</a
+                    >
+                  </td>
+                </tr>
+                {% endfor %} {% endcomment %}
+              </tbody>
+            </table>
+          </div>
+          <div class="card">
+            <div class="card-body">
+              {% for i in data %} {% if i == 'forward' %}
+              <span class="bg-yellow">{{i}}</span>
+
+              {% else %} {{i}} {% endif %} {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
