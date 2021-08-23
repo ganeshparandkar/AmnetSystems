@@ -81,14 +81,19 @@ def mdash(request):
     pdfData = pdfData.replace('\n', '<br>')
     # print(type(pdfData))
     s = '<p>' + pdfData + '</p>'
+    count = 0
+    for i in pdfData:
+        if i == '—':
+            count = count + 1
 
     # s = s.split(' ')
 
     context = {
         # 'pdfData': pdfData,
         # 'pdfData': '<h1>hello</h1>',
-
         'pdfData': s,
+
+        'count': count,
     }
     return render(request, 'mdash.html', context)
 
