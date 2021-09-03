@@ -2,6 +2,7 @@ import PyPDF2
 from PyPDF2 import pdf
 from django.http.response import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, HttpResponse, redirect
+from django.contrib import messages
 
 from .forms import FilesUploadForm
 from .models import file_upload
@@ -14,6 +15,7 @@ from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
 from pdfminer.converter import TextConverter
 from pdfminer.layout import LAParams
 from pdfminer.pdfpage import PDFPage
+import xml.etree.ElementTree as et
 
 
 def convert_pdf_to_txt(path):
@@ -43,22 +45,56 @@ def convert_pdf_to_txt(path):
 
 
 def index(request):
+    data = file_upload.objects.all()
+
     if request.method == 'POST':
         c_form = FilesUploadForm(request.POST, request.FILES)
         if c_form.is_valid():
-            name = c_form.cleaned_data['file_name']
             files = c_form.cleaned_data['files']
-            file_upload(file_name=name, up_file=files).save()
+            name = files.name
 
-            return redirect('view')
+            if (files.name.endswith('.xml') or files.name.endswith('.pdf')):
+                flag = 0
+                if (files.name.endswith('.pdf')):
+
+                    for i in data:
+                        if (i.file_name.endswith('.pdf')):
+                            flag = 1
+                            messages.info(
+                                request, 'You already uploaded the PDF! You cant upload more than one PDF')
+
+                    if flag == 0:
+                        file_upload(file_name=name, up_file=files).save()
+
+                if (files.name.endswith('.xml')):
+
+                    for i in data:
+                        if (i.file_name.endswith('.xml')):
+                            flag = 1
+                            messages.info(
+                                request, 'You already uploaded the xml! You cant upload more than one XML')
+
+                    if flag == 0:
+                        file_upload(file_name=name, up_file=files).save()
+
+            return redirect('home')
         else:
             return HttpResponse("Error")
 
     else:
         context = {
-            'form': FilesUploadForm()
+            'form': FilesUploadForm(),
+            'data': data
         }
+
         return render(request, 'index.html', context)
+
+
+def deleteAll(request):
+    data = file_upload.objects.all()
+    for document in data:
+        document.delete()
+    return redirect('home')
 
 
 def sendsample(request):
@@ -66,66 +102,206 @@ def sendsample(request):
 
 
 def Pageno(request):
-    return render(request, 'pageNo.html')
+
+    all_data = file_upload.objects.all()
+    xmlFileAvailable = False
+
+    for i in all_data:
+        if (i.file_name.endswith('.xml')):
+            xmlFileAvailable = True
+            xmlFile = i
+
+    if xmlFileAvailable:
+
+        a = '.' + xmlFile.up_file.url
+        chapterData = pageNoChapterWise(a)
+        #!alsldfkasdflasdjf
+        tree = et.parse(a)
+        root = tree.getroot()
+
+        ch_num_toc = []
+        ch_page_toc = []
+        ch_pgn_mt = []
+        result = []
+
+        for type_tag in root.findall('front/div/list/list-item/p/b'):
+            if type_tag.text is not None:
+                ch_num_toc.append(type_tag.text)
+
+        for type_tag in root.findall('front/div/list/list-item/p/ref/display-text'):
+            if type_tag.text is not None:
+                ch_page_toc.append(type_tag.text)
+
+        result.append(ch_num_toc)
+        result.append(ch_page_toc)
+        # print('\n',ch_num_toc,'\n')
+        # print(ch_page_toc,'\n')
+
+        for type_tag in root.findall('div/page-start'):
+            ch_pgn_mt.append(type_tag.get('number'))
+
+        ch_pgn_mt = ch_pgn_mt[1:]
+        for i in range(0, len(ch_pgn_mt)):
+            ch_pgn_mt[i] = ch_pgn_mt[i][2:]
+        # print(ch_pgn_mt)
+
+        total_ch = len(ch_pgn_mt)
+
+        # I have introduced this error intentionally
+        # ch_pgn_mt[1]='15'
+        # print(ch_pgn_mt)
+
+        pgn_issue = []
+
+        for i in range(0, total_ch):
+            if(ch_page_toc[i] != ch_pgn_mt[i]):
+                pgn_issue.append(i)
+        if(len(pgn_issue) == 0):
+            print("No issues with pagen numbers")
+        else:
+            print("There is a page number issue on")
+            for j in pgn_issue:
+                print("On chapter : ", j+1)
+
+        ch_name_toc = []
+        for type_tag in root.findall('front/div/list/list-item'):
+            # print(type_tag.text)
+            if type_tag.text is not None:
+                ch_name_toc.append(type_tag.text)
+
+        chapterData = result
+        #
+        #!alsldfkasdflasdjf
+        print(chapterData)
+        tree = et.parse(a)
+        root = tree.getroot()
+        ch_page_toc = []
+        ch_pgn_mt = []
+        result = []
+        flag = 0
+        for type_tag in root.findall('front/div/list/list-item/p/ref/display-text'):
+            # print(type_tag.text)
+            if type_tag.text is not None:
+                ch_page_toc.append(type_tag.text)
+        print(ch_page_toc)
+
+        for type_tag in root.findall('div/page-start'):
+            ch_pgn_mt.append(type_tag.get('number'))
+        print(ch_pgn_mt)
+        ch_pgn_mt = ch_pgn_mt[1:]
+        for i in range(0, len(ch_pgn_mt)):
+            ch_pgn_mt[i] = ch_pgn_mt[i][2:]
+
+        pgn_issue = []
+        total_ch = len(ch_pgn_mt)
+        for i in range(0, total_ch):
+            if(ch_page_toc[i] != ch_pgn_mt[i]):
+                pgn_issue.append(i)
+        if(len(pgn_issue) == 0):
+            # print("No issues with pagen numbers")
+            result.append('No issues with pagen numbers')
+        else:
+            # print("T")
+            result.append('There is a page number issue on')
+            for j in pgn_issue:
+                result.append(['On chapter :', j+1])
+                # print("On chapter : ",j+1)
+
+        if len(result) > 1:
+            flag = 1
+            result = ''.join(result)
+        else:
+            result = result[0]
+
+        chapterNames = chapterData[0]
+        chapterPageNo = chapterData[1]
+        arr = zip(chapterNames,chapterPageNo)
+        context = {
+            'xmlAvailable': xmlFileAvailable,
+            'chapterData':arr,
+            'data': result,
+            'check': flag,
+            'cNames': chapterNames,
+            'cPageNo': chapterPageNo
+        }
+
+    return render(request, 'pageNo.html', context)
 
 
 def mdash(request):
-    data = file_upload.objects.first()
-    print
-    a = '.' + data.up_file.url
-    # file = open(a, "rb")
-    print('file name is ---------------------> ', a)
-    pdfData = convert_pdf_to_txt(a)
+    myContext = {}
+    all_data = file_upload.objects.all()
+    pdfFile = False
 
-    pdfData = pdfData.replace('—', '<span class="bg-yellow">—</span>')
-    pdfData = pdfData.replace('\n', '<br>')
-    # print(type(pdfData))
-    s = '<p>' + pdfData + '</p>'
-    count = 0
-    for i in pdfData:
-        if i == '—':
-            count = count + 1
+    for i in all_data:
+        if (i.file_name.endswith('.pdf')):
+            pdfFile = i
 
-    # s = s.split(' ')
+        if (i.file_name.endswith('.xml')):
+            xmlFile = i
 
-    context = {
-        # 'pdfData': pdfData,
-        # 'pdfData': '<h1>hello</h1>',
-        'pdfData': s,
+    if pdfFile:
+        pdfAvailable = True
 
-        'count': count,
-    }
-    return render(request, 'mdash.html', context)
+        # print('there is pdf')
+        a = '.' + pdfFile.up_file.url
+        print('file name is ---------------------> ', a)
+        pdfData = convert_pdf_to_txt(a)
+
+        pdfData = pdfData.replace('—', '<span class="bg-yellow">—</span>')
+        pdfData = pdfData.replace('\n', '<br>')
+        s = '<p>' + pdfData + '</p>'
+        count = 0
+        for i in pdfData:
+            if i == '—':
+                count = count + 1
+
+        context = {
+            'pdfData': s,
+            'pdfAvailable': pdfAvailable,
+            'count': count,
+        }
+        return render(request, 'mdash.html', context)
+    else:
+        pdfAvailable = False
+        print('there is no pdf')
+    return render(request,
+                  'mdash.html', myContext)
 
 
 def junkChar(request):
     return render(request, 'Jcharacter.html')
 
 
-def show_file(request):
-    # all_data = file_upload.objects.all()
-    data = file_upload.objects.first()
-    print
-    a = '.' + data.up_file.url
-    # file = open
-    # (a, "rb")
-    print('file name is ---------------------> ', a)
-    pdfData = convert_pdf_to_txt(a)
+def pageNoChapterWise(path):
+    result = 0
+    return result
 
-    # pdfReader = PyPDF2.PdfFileReader(file)
-    # print(pdfReader.numPages)
-    # pageObj = pdfReader.getPage(0)
 
-    # reader = PyPDF2.PdfFileReader(file)
-    # page1 = reader.getPage(4)
-    # # print(page1)
-    # pdfData = pageObj.extractText()
-    words = pdfData.split(' ')
-    print(words)
-    context = {
-        'data': words,
-        # 'data': all_data,
-        # 'pdfData': words
-    }
+# def show_file(request):
 
-    return render(request, 'view.html', context)
+#     data = file_upload.objects.first()
+#     print
+#     a = '.' + data.up_file.url
+#     # file = open
+#     # (a, "rb")
+#     print('file name is ---------------------> ', a)
+#     pdfData = convert_pdf_to_txt(a)
+
+#     # pdfReader = PyPDF2.PdfFileReader(file)
+#     # print(pdfReader.numPages)
+#     # pageObj = pdfReader.getPage(0)
+
+#     # reader = PyPDF2.PdfFileReader(file)
+#     # page1 = reader.getPage(4)
+#     # # print(page1)
+#     # pdfData = pageObj.extractText()
+#     words = pdfData.split(' ')
+#     print(words)
+#     context = {
+#         'data': words,
+#         # 'data': all_data,
+#         # 'pdfData': words
+#     }
+
+#     return render(request, 'view.html', context)

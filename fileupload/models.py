@@ -1,5 +1,5 @@
 from django.db import models
-
+import os
 # Create your models here.
 
 class file_upload(models.Model):

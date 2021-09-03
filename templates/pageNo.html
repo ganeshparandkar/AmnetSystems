@@ -18,13 +18,44 @@
       </ul>
     </nav>
 
-    <section>
+    <section >
       <div class="insideCard">
-        <div class="card cardin">
-          <div class="card-body">
-            This is where we are going to show Page Numbers results
+        <div class="card cardin pre-scrollable">
+          <div class="card-body ">
+            Issues On Page Nos: {{data}}
+            <hr />
+            <table class="table table-bordered">
+              <thead class="thead-dark">
+                <tr>
+                  <th>Chapter Name</th>
+                  <th>Page No in TOC</th>
+                  <th>Page number in main text</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {% if xmlAvailable %} 
+                {% for name,page in chapterData %}
+                <tr>
+                  <td>{{name}}</td>
+                  <td>{{page}}</td>
+                  <td></td>
+                 
+                </tr>
+                {% endfor %} {% else %}
+                <tr>
+                  <td>No Files are There</td>
+                </tr>
+                {% endif %}
+              </tbody>
+            </table>
           </div>
         </div>
+        <a href="/">
+          <button class="btn btn-secondary mt-2 mr-2 float-right" type="submit">
+            Back To HomePage
+          </button>
+        </a>
       </div>
     </section>
   </div>

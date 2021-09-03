@@ -1,0 +1,44 @@
+{% extends 'main.html' %} {% block content %}
+
+<div class="card maincard">
+  <div class="card-body">
+    <nav>
+      <ul class="nav nav-tabs">
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'mdash' %}">M dash</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link " href="{% url 'junkchar' %}">Junk Characters</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="#"
+            >Page Numbers</a
+          >
+        </li>
+      </ul>
+    </nav>
+
+    <section>
+      <div class="insideCard">
+        <div class="card cardin">
+          <div class="card-body">
+
+            {{data}}
+
+            <hr />
+
+            {% for i in arr %}
+            
+            {{i}} 
+            
+            <br />
+
+            {% endfor %}
+            
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}

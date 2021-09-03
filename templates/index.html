@@ -25,35 +25,80 @@
   </head>
 
   <body>
+    <section class="header" style="height: 10vh;background-color: black;">
+      <h3 class="header-heading ml-5 p-3" style="color:white">
+        AMNET Sytems Project
+      </h3>
+    </section>
     <div class="container mt-5">
+      {% if messages %} {% for m in messages %}
+      <div class="alert alert-dismissible alert-primary">
+        <strong>{{m}}</strong>
+      </div>
+      {% endfor %} {% endif %}
+
       <div class="jumbotron">
-        <h1>Upload a PDF File</h1>
+        <h1>Upload a PDF or XML file</h1>
         <form
           enctype="multipart/form-data"
           action="{% url 'home' %}"
           method="POST"
         >
+          <!-- <div class="form-group">
+          <label for="{{form.file_name.id_for_label}}">File Name</label>
+          {{form.file_name}}
+        </div> -->
           <div class="form-group">
-            <label for="{{form.file_name.id_for_label}}">File Name</label>
-            {{form.file_name}}
-          </div>
-          <div class="form-group">
-            <label for="{{form.files.id_for_label}}">File</label>
+            <label for="{{form.files.id_for_label}}">Select File</label>
             {{form.files}}
           </div>
           {% csrf_token %}
           <button type="submit" class="btn btn-primary">Submit</button>
         </form>
       </div>
-      <a href="/view">
-        <button
-          class="btn btn-secondary"
-          href="{% url 'mdash' %}"
-          type="submit"
-        >
-          View Files
-        </button>
-      </a>
+      <table class="table table-bordered">
+        <thead class="thead-dark">
+          <tr>
+            <th>Sr. No.</th>
+            <th>Name</th>
+            <th>File Name</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% if data %} {% for d in data %}
+          <tr>
+            <td>{{forloop.counter}}</td>
+            <td>{{d.file_name}}</td>
+            <td>
+              <!-- <a href="{{d.up_file.url}}" target="_blank">{{d.up_file}}</a> -->
+              {{d.up_file}}
+            </td>
+            <td></td>
+          </tr>
+          {% endfor %} {% else %}
+          <tr>
+            <td>No Files are There</td>
+          </tr>
+          {% endif %}
+        </tbody>
+      </table>
+      {% if data %}
+      <div class="row">
+        <div class="col-6">
+          <a href="/m-dash">
+            <button class="btn btn-secondary">
+              View Files
+            </button>
+          </a>
+        </div>
+        <div class="col-6">
+          <form action="actionUrl" method="GET">
+            <button class="btn btn-secondary" type="submit">Delete all</button>
+          </form>
+        </div>
+      </div>
+      {% endif %}
     </div>
 
     <!-- Optional JavaScript -->
