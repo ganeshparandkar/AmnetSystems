@@ -9,6 +9,7 @@ urlpatterns = [
     path('m-dash', views.mdash, name="mdash"),
     path('pageNo', views.Pageno, name="pageno"),
     path('JuncCharacter', views.junkChar, name="junkchar"),
+    path('orderWise', views.alphaOrder, name="alphaOrder"),
     path('actionUrl', views.deleteAll),
 
 

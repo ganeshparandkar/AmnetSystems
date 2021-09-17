@@ -4,13 +4,16 @@
     <nav>
       <ul class="nav nav-tabs">
         <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="#">M dash</a>
+          <a class="nav-link active" aria-current="page" href="#">em-dash</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="{% url 'junkchar' %}">Junk Characters</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="{% url 'pageno' %}">Page Numbers</a>
+        </li>
+          <li class="nav-item">
+          <a class="nav-link" aria-current="page" href="{% url 'alphaOrder' %}">Order Check</a>
         </li>
       </ul>
     </nav>
@@ -38,7 +41,7 @@
                     <!-- <img class="card-img-top" src="..." alt="Card image cap"> -->
                     <div class="card-body">
                       <h5 class="card-title">
-                        Total number of M-Dash in the PDF: {{count}}
+                        Total number of em-Dash in the PDF: {{count}}
                       </h5>
                       <hr />
                       <!-- <p class="card-text">Some quick example text to build on the card title and make up the bulk of the

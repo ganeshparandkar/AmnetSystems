@@ -5,7 +5,7 @@
     <nav>
       <ul class="nav nav-tabs">
         <li class="nav-item">
-          <a class="nav-link" href="{% url 'mdash' %}">M dash</a>
+          <a class="nav-link" href="{% url 'mdash' %}">em dash</a>
         </li>
         <li class="nav-item">
           <a class="nav-link " href="{% url 'junkchar' %}">Junk Characters</a>
@@ -15,14 +15,20 @@
             >Page Numbers</a
           >
         </li>
+        <li class="nav-item">
+          <a class="nav-link" aria-current="page" href="{% url 'alphaOrder' %}"
+            >Order Check</a
+          >
+        </li>
       </ul>
     </nav>
 
-    <section >
+    <section>
       <div class="insideCard">
         <div class="card cardin pre-scrollable">
           <div class="card-body ">
-            Issues On Page Nos: {{data}}
+            {% if xmlAvailable %} Issues On Page Nos: {{data}} {% endif %}
+
             <hr />
             <table class="table table-bordered">
               <thead class="thead-dark">
@@ -34,17 +40,15 @@
               </thead>
 
               <tbody>
-                {% if xmlAvailable %} 
-                {% for name,page in chapterData %}
+                {% if xmlAvailable %} {% for name,page in chapterData %}
                 <tr>
                   <td>{{name}}</td>
                   <td>{{page}}</td>
                   <td></td>
-                 
                 </tr>
                 {% endfor %} {% else %}
                 <tr>
-                  <td>No Files are There</td>
+                  <td>There is No XML FIle</td>
                 </tr>
                 {% endif %}
               </tbody>

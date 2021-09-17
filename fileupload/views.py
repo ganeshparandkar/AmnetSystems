@@ -16,7 +16,8 @@ from pdfminer.converter import TextConverter
 from pdfminer.layout import LAParams
 from pdfminer.pdfpage import PDFPage
 import xml.etree.ElementTree as et
-
+import re
+from xml.dom import minidom
 
 def convert_pdf_to_txt(path):
     rsrcmgr = PDFResourceManager()
@@ -42,6 +43,59 @@ def convert_pdf_to_txt(path):
     text = retstr.getvalue()
     retstr.close()
     return text
+def missmatch(path):
+        
+    mytree = minidom.parse(path)
+
+    lang_termSetElem = mytree.getElementsByTagName('term')
+
+
+    ch=''
+    odd=''
+    even=''
+
+
+    for x in lang_termSetElem:
+
+            ch=x.firstChild.nodeValue
+
+            break
+
+
+    i=0
+
+    arr = []
+
+    for x in lang_termSetElem:
+
+        if (ch == x.firstChild.nodeValue):
+            pass
+        else:
+            i=i+1
+            # print(i, " ", x.firstChild.nodeValue)
+            if(i%2==0):
+                even=x.firstChild.nodeValue
+                even = even[:-2]
+
+            else:
+                odd=x.firstChild.nodeValue
+                odd= odd[:-2]
+
+            if(i%2==0):
+                if odd>even:
+                    count=i
+                    arr.append((even,odd))
+                    # print(even, "<<miss match  >>", odd)
+
+                    # break
+            else:
+                if even>odd:
+                    count = i
+                    arr.append((even,odd))
+                    # print(even, "<<miss match >> ", odd)
+                    # break
+    return arr
+
 
 
 def index(request):
@@ -102,7 +156,7 @@ def sendsample(request):
 
 
 def Pageno(request):
-
+    
     all_data = file_upload.objects.all()
     xmlFileAvailable = False
 
@@ -215,17 +269,51 @@ def Pageno(request):
 
         chapterNames = chapterData[0]
         chapterPageNo = chapterData[1]
-        arr = zip(chapterNames,chapterPageNo)
+        arr = zip(chapterNames, chapterPageNo)
         context = {
             'xmlAvailable': xmlFileAvailable,
-            'chapterData':arr,
+            'chapterData': arr,
             'data': result,
             'check': flag,
             'cNames': chapterNames,
             'cPageNo': chapterPageNo
         }
+    else:
+        context = {
+            'xmlAvailable': xmlFileAvailable,
+        }
 
     return render(request, 'pageNo.html', context)
+def alphaOrder(request):
+
+    all_data = file_upload.objects.all()
+    xmlFileAvailable = False
+
+    for i in all_data:
+        if (i.file_name.endswith('.xml')):
+            xmlFileAvailable = True
+            xmlFile = i
+
+    if xmlFileAvailable:
+
+        a = '.' + xmlFile.up_file.url
+        alphaOrder = missmatch(a)
+        col1 =  [x[0] for x in alphaOrder]
+        col2 =  [x[1] for x in alphaOrder]
+        arr = zip(col1, col2)
+
+        context = {
+            'xmlAvailable': xmlFileAvailable,
+            'alphaOrder': arr,
+            'col1':col1,
+            'col2':col2
+        }
+    else:
+        context = {
+            'xmlAvailable': xmlFileAvailable,
+        }
+
+    return render(request, 'orderwiseChapters.html', context)
 
 
 def mdash(request):
@@ -270,7 +358,73 @@ def mdash(request):
 
 
 def junkChar(request):
-    return render(request, 'Jcharacter.html')
+    myContext = {}
+    context ={}
+    all_data = file_upload.objects.all()
+    pdfFile = False
+
+    for i in all_data:
+        if (i.file_name.endswith('.pdf')):
+            pdfFile = i
+
+        if (i.file_name.endswith('.xml')):
+            xmlFile = i
+
+    if pdfFile:
+        pdfAvailable = True
+
+        # print('there is pdf')
+        a = '.' + pdfFile.up_file.url
+        print('file name is ---------------------> ', a)
+        pdfData = convert_pdf_to_txt(a)
+
+        resource_manager = PDFResourceManager()
+        fake_file_handle = io.StringIO()
+        converter = TextConverter(resource_manager, fake_file_handle)
+        page_interpreter = PDFPageInterpreter(resource_manager, converter)
+
+        with open(a, 'rb') as fh:
+            for page in PDFPage.get_pages(fh, caching=True, check_extractable=True):
+                page_interpreter.process_page(page)
+
+            text = fake_file_handle.getvalue()
+            pattern = '☒'
+            for i in text:
+                r = re.search(pattern, i)
+                if bool(r):
+                    # print(r)
+                    # print(type(r))
+                    continue
+
+        converter.close()
+        fake_file_handle.close()
+
+        if text:
+            pdfData = text
+            pdfData = pdfData.replace('☒', '<span class="bg-yellow">☒</span>')
+            pdfData = pdfData.replace('\n', '<br>')
+            s = '<p>' + pdfData + '</p>'
+            count = 0
+            for i in pdfData:
+                if i == '☒':
+                    count = count + 1
+
+            if count > 0:
+                context['Junk_count'] = count
+                context['JunkAvailable'] = True
+                context['pdfData'] = s
+                context['pdfAvailable']= pdfAvailable
+
+            print(context)
+            return render(request, 'Jcharacter.html', context)
+
+
+        else:
+            pdfAvailable = False
+            print('there is no pdf')
+            return render(request,
+                    'Jcharacter.html', myContext)
+
 
 
 def pageNoChapterWise(path):

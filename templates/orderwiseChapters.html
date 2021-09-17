@@ -1,0 +1,63 @@
+{% extends 'main.html' %} {% block content %}
+
+<div class="card maincard">
+  <div class="card-body">
+    <nav>
+      <ul class="nav nav-tabs">
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'mdash' %}">em dash</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link " href="{% url 'junkchar' %}">Junk Characters</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'pageno' %}">Page Numbers</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="#">Order Check</a>
+        </li>
+      </ul>
+    </nav>
+
+    <section>
+      <div class="insideCard">
+        <div class="card cardin pre-scrollable">
+          <div class="card-body ">
+            {% if xmlAvailable %} Order Of Chapters {{data}} {% endif %}
+
+            <hr />
+            <table class="table table-bordered">
+              <thead class="thead-dark">
+                <tr>
+                  <th>Chapter Name</th>
+                  <th>Status</th>
+                  <th>Page number in main text</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {% if xmlAvailable %} {% for name,page in alphaOrder %}
+                <tr>
+                  <td>{{name}}</td>
+                  <td>missmatch</td>
+                  <td>{{page}}</td>
+                </tr>
+                {% endfor %} {% else %}
+                <tr>
+                  <td>There is No XML FIle</td>
+                </tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <a href="/">
+          <button class="btn btn-secondary mt-2 mr-2 float-right" type="submit">
+            Back To HomePage
+          </button>
+        </a>
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}
