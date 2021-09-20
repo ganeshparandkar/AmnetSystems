@@ -1,0 +1,76 @@
+{% extends 'main.html' %} {% block content %}
+<div class="card maincard">
+  <div class="card-body">
+    <nav>
+      <ul class="nav nav-tabs">
+        <li class="nav-item">
+          <a class="nav-link" aria-current="page" href="{% url 'mdash' %}">em-dash</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'junkchar' %}">Junk Characters</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'pageno' %}">Page Numbers</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" aria-current="page" href="{% url 'alphaOrder' %}">Order Check</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="{% url 'missingpages' %}">Folio Log</a>
+        </li>
+      </ul>
+    </nav>
+
+    <section>
+      <div class="insideCard">
+        <div class="card cardin">
+          <div class="card-body">
+            <div class="row p-1">
+
+              <div class="errors " style="height: 22.5em;">
+                <div class="card" style="width: 89rem; height: 100%; border-radius: 10px; margin-left: 1rem;">
+                  <!-- <img class="card-img-top" src="..." alt="Card image cap"> -->
+                  <div class="card-body">
+                    <h5 class="card-title">
+                      Error Status: {{status}}
+                    </h5>
+                    <hr />
+                    {% if estatus %}
+                    <h5>Error on pages</h5>
+                    <p>
+                      {% for i in pageNos %}
+                      {{i}}
+                      {% endfor %}
+                    </p>
+                    {% else %}
+                    <h5>Page Numbers</h5>
+                    <!-- <p>
+                      {% for i in pageNos %}
+                      {{i}}
+                      {% endfor %}
+                    </p> -->
+                    <p>There are no errors!</p>
+
+                    {% endif %}
+
+                    <!-- <p class="card-text">Some quick example text to build on the card title and make up the bulk of the
+                      card's content.</p> -->
+                    <!-- <a href="#" class="btn btn-primary">Go somewhere</a> -->
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+            <a href="/">
+              <button class="btn btn-secondary mt-3 float-right" type="submit">
+                Back To HomePage
+              </button>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}

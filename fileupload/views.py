@@ -18,6 +18,30 @@ from pdfminer.pdfpage import PDFPage
 import xml.etree.ElementTree as et
 import re
 from xml.dom import minidom
+def folioLog(path):
+    data_file = path
+    tree = et.parse(data_file)
+    root = tree.getroot()
+    pn=[]
+    errors = []
+    for i in root.iter('page-start'):
+        p= i.attrib['number']
+        p=p[2:]
+        if(p.isdigit()):
+            pn.append( int(p))
+
+    f=0
+    for i in range(0,len(pn)):
+        if(pn[i]!=i+1):
+            print("We have an error at page number : ",i)
+            errors.append(i)
+            f=1
+    if(f==0):
+        # print("no issues with the page numbers")
+        data = [pn,False]
+        return data
+    else:
+        return errors
 
 def convert_pdf_to_txt(path):
     rsrcmgr = PDFResourceManager()
@@ -316,6 +340,39 @@ def alphaOrder(request):
     return render(request, 'orderwiseChapters.html', context)
 
 
+def missingpages(request):
+    context = {}
+    all_data = file_upload.objects.all()
+    pdfFile = False
+    xmlFile = False
+    for i in all_data:
+        if (i.file_name.endswith('.pdf')):
+            pdfFile = i
+
+        if (i.file_name.endswith('.xml')):
+            xmlFile = i
+    if xmlFile:
+        a = '.' + xmlFile.up_file.url
+        sample = folioLog(a)
+        if len(sample) >1:
+            errorstatus = False
+            status='No Error'
+            pagenumbers = sample[0]
+        else:
+            errorstatus = True
+            status='Error Found'
+            pagenumbers = sample[0]
+        
+    context = {
+        'xmlavailable' : xmlFile,
+        'estatus':errorstatus,
+        'status':status,
+        'pageNos':pagenumbers,
+        
+    }
+        
+   
+    return render(request, 'missingPageNo.html',context)
 def mdash(request):
     myContext = {}
     all_data = file_upload.objects.all()
@@ -422,6 +479,7 @@ def junkChar(request):
         else:
             pdfAvailable = False
             print('there is no pdf')
+            context['pdfAvailable']= pdfAvailable
             return render(request,
                     'Jcharacter.html', myContext)
 

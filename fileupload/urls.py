@@ -10,6 +10,7 @@ urlpatterns = [
     path('pageNo', views.Pageno, name="pageno"),
     path('JuncCharacter', views.junkChar, name="junkchar"),
     path('orderWise', views.alphaOrder, name="alphaOrder"),
+    path('missingPages', views.missingpages, name="missingpages"),
     path('actionUrl', views.deleteAll),
 
 

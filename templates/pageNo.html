@@ -5,11 +5,13 @@
     <nav>
       <ul class="nav nav-tabs">
         <li class="nav-item">
-          <a class="nav-link" href="{% url 'mdash' %}">em dash</a>
+          <a class="nav-link" href="{% url 'mdash' %}">en-dash</a>
         </li>
+
         <li class="nav-item">
           <a class="nav-link " href="{% url 'junkchar' %}">Junk Characters</a>
         </li>
+
         <li class="nav-item">
           <a class="nav-link active" aria-current="page" href="#"
             >Page Numbers</a
@@ -18,6 +20,14 @@
         <li class="nav-item">
           <a class="nav-link" aria-current="page" href="{% url 'alphaOrder' %}"
             >Order Check</a
+          >
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            aria-current="page"
+            href="{% url 'missingpages' %}"
+            >Folio Log</a
           >
         </li>
       </ul>
